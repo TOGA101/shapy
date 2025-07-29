@@ -33,7 +33,9 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     conda activate shapy
     REM omegaconf 2.0.6 requires pip<24.1
     python -m pip install "pip<24.1"
-    pip install -r requirements.txt
+    REM install CPU versions of PyTorch & torchvision
+    pip install torch==1.7.1+cpu torchvision==0.8.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
+    pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
 
     cd attributes
     python setup.py install
