@@ -19,6 +19,7 @@ import torch
 from PIL import Image
 from torchvision.transforms import Compose, Normalize, Resize, ToTensor
 from omegaconf import OmegaConf
+import os
 
 # Support running from the repository root by adding required submodules to
 # the Python path. When executed from within ``regressor`` this is unnecessary
@@ -49,8 +50,10 @@ from human_shape.utils.checkpointer import Checkpointer
 def load_config(cfg_path: Path | None) -> OmegaConf:
     """Load an experiment configuration."""
     cfg = default_conf.copy()
+    base_dir = Path('.')
     if cfg_path is not None:
         cfg.merge_with(OmegaConf.load(str(cfg_path)))
+        base_dir = cfg_path.parent
     cfg.is_training = False
     # Body measurement computation relies on the optional CUDA extension and is
     # unnecessary during inference. Disable it to avoid import errors.
@@ -58,15 +61,37 @@ def load_config(cfg_path: Path | None) -> OmegaConf:
         path = f"network.{key}.compute_measurements"
         if OmegaConf.select(cfg, path) is not None:
             OmegaConf.update(cfg, path, False, merge=False)
+
+    def _resolve_paths(obj):
+        if isinstance(obj, (dict, OmegaConf)):
+            for k, v in obj.items():
+                if isinstance(v, str) and v and not os.path.isabs(v) and (
+                        '/' in v or '\\' in v):
+                    obj[k] = str((base_dir / v).resolve())
+                else:
+                    _resolve_paths(v)
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj):
+                if isinstance(v, str) and v and not os.path.isabs(v) and (
+                        '/' in v or '\\' in v):
+                    obj[i] = str((base_dir / v).resolve())
+                else:
+                    _resolve_paths(v)
+
+    _resolve_paths(cfg)
+
     return cfg
 
 
-def build_network(cfg, device: torch.device):
+def build_network(cfg, device: torch.device, checkpoint_dir: Path | None):
     """Construct the network and load weights."""
     model_dict = build_model(cfg)
     model = model_dict["network"].to(device)
 
     ckpt_dir = Path(cfg.output_folder) / cfg.checkpoint_folder
+    if checkpoint_dir is not None:
+        ckpt_dir = checkpoint_dir
+        cfg.pretrained = str(checkpoint_dir)
     ckpt_dir = ckpt_dir if ckpt_dir.is_dir() else Path(cfg.output_folder)
     checkpointer = Checkpointer(model, save_dir=str(ckpt_dir),
                                 pretrained=cfg.pretrained)
@@ -105,7 +130,7 @@ def main(args: argparse.Namespace) -> None:
     cfg = load_config(args.cfg)
     cfg.use_cuda = device.type == "cuda"
 
-    model = build_network(cfg, device)
+    model = build_network(cfg, device, args.checkpoint)
 
     img = Image.open(args.image).convert("RGB")
     crop_size = cfg.datasets.pose.transforms.crop_size
