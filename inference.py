@@ -13,11 +13,18 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 from typing import Iterable, Tuple
+import sys
 
 import torch
 from PIL import Image
 from torchvision.transforms import Compose, Normalize, Resize, ToTensor
 from omegaconf import OmegaConf
+
+# Support running from the repository root by adding the regressor module to
+# the Python path. When executed from within ``regressor`` this is unnecessary
+# but otherwise ``human_shape`` cannot be resolved.
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "regressor"))
 
 from human_shape.config.defaults import conf as default_conf
 from human_shape.models.build import build_model
