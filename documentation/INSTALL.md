@@ -27,7 +27,8 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     ```cmd
     git clone https://github.com/muelea/shapy.git
     cd shapy
-    set PYTHONPATH=%PYTHONPATH%;%CD%\attributes
+    set PYTHONPATH=%PYTHONPATH%;%CD%\attributes;%CD%\mesh-mesh-intersection
+    REM This provides the required `body_measurements` module even without CUDA.
 
     conda create -n shapy python=3.8 -y
     conda activate shapy
@@ -40,8 +41,7 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     cd attributes
     python setup.py install
 
-    REM Optional: the mesh-mesh-intersection extension needs CUDA.
-    REM Skip the next commands if you only have a CPU.
+    REM Optional: build the mesh-mesh-intersection CUDA extension if CUDA is available.
     REM cd ..\mesh-mesh-intersection
     REM pip install -r requirements.txt
     REM python setup.py install

@@ -20,11 +20,12 @@ from PIL import Image
 from torchvision.transforms import Compose, Normalize, Resize, ToTensor
 from omegaconf import OmegaConf
 
-# Support running from the repository root by adding the regressor module to
+# Support running from the repository root by adding required submodules to
 # the Python path. When executed from within ``regressor`` this is unnecessary
-# but otherwise ``human_shape`` cannot be resolved.
+# but otherwise ``human_shape`` and ``body_measurements`` cannot be resolved.
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "regressor"))
+sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
 
 from human_shape.config.defaults import conf as default_conf
 from human_shape.models.build import build_model
@@ -37,6 +38,12 @@ def load_config(cfg_path: Path | None) -> OmegaConf:
     if cfg_path is not None:
         cfg.merge_with(OmegaConf.load(str(cfg_path)))
     cfg.is_training = False
+    # Body measurement computation relies on the optional CUDA extension and is
+    # unnecessary during inference. Disable it to avoid import errors.
+    for key in ("smpl", "smplh", "smplx", "expose"):
+        path = f"network.{key}.compute_measurements"
+        if OmegaConf.select(cfg, path) is not None:
+            OmegaConf.update(cfg, path, False, merge=False)
     return cfg
 
 
