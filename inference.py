@@ -26,6 +26,7 @@ from omegaconf import OmegaConf
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "regressor"))
 sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
+sys.path.insert(0, str(ROOT / "attributes"))
 
 # When the optional CUDA extension for mesh-mesh-intersection is not compiled,
 # importing `body_measurements` fails. Create lightweight stub modules so that
