@@ -7,7 +7,14 @@ import sys
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch
-from torchvision.transforms import ColorJitter
+from torchvision.transforms import (
+    ColorJitter,
+    RandomAffine,
+    RandomPerspective,
+    RandomGrayscale,
+    GaussianBlur,
+    Compose,
+)
 
 # Import helper functions from the inference script in the same directory
 from inference import (
@@ -30,8 +37,14 @@ def main(args: argparse.Namespace) -> None:
     model = build_network(cfg, device, args.checkpoint)
 
     img = Image.open(args.image).convert("RGB")
-    aug = ColorJitter(brightness=0.05, contrast=0.05, saturation=0.05, hue=0.02)
-    img_aug = aug(img)
+    augment = Compose([
+        ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
+        RandomAffine(degrees=5, translate=(0.02, 0.02), scale=(0.95, 1.05)),
+        RandomPerspective(distortion_scale=0.05, p=0.5),
+        RandomGrayscale(p=0.1),
+        GaussianBlur(kernel_size=3, sigma=(0.1, 2.0)),
+    ])
+    img_aug = augment(img)
 
     crop_size = cfg.datasets.pose.transforms.crop_size
     mean = cfg.datasets.pose.transforms.mean
