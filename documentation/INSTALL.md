@@ -40,10 +40,11 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     cd attributes
     python setup.py install
 
-    cd ..\mesh-mesh-intersection
-    REM The intersection module relies on CUDA. Skip if CUDA is unavailable.
-    pip install -r requirements.txt
-    python setup.py install
+    REM Optional: the mesh-mesh-intersection extension needs CUDA.
+    REM Skip the next commands if you only have a CPU.
+    REM cd ..\mesh-mesh-intersection
+    REM pip install -r requirements.txt
+    REM python setup.py install
     ```
 
 ### Body model and model data
