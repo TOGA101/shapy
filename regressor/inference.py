@@ -33,7 +33,7 @@ sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
 sys.path.insert(0, str(ROOT / "attributes"))
 
 # Default checkpoint path based on the expected data folder structure
-DEFAULT_CHECKPOINT = ROOT / "data" / "trained_models" / "shapy" / "SHAPY_A"
+DEFAULT_CHECKPOINT = ROOT / "data" / "trained_models" / "shapy" / "SHAPY_A" / "checkpoints"
 
 # When the optional CUDA extension for mesh-mesh-intersection is not compiled,
 # importing `body_measurements` fails. Create lightweight stub modules so that
