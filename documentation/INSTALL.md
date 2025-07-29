@@ -31,6 +31,8 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
 
     conda create -n shapy python=3.8 -y
     conda activate shapy
+    REM omegaconf 2.0.6 requires pip<24.1
+    python -m pip install "pip<24.1"
     pip install -r requirements.txt
 
     cd attributes
