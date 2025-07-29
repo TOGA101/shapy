@@ -4,8 +4,8 @@
 
 The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 18.04.
 
-- Clone this repo, create virtual environment & install requirements
-    ```
+- Clone this repo, create virtual environment & install requirements (Linux)
+    ```bash
     git clone git@github.com:muelea/shapy.git
     cd shapy
     export PYTHONPATH=$PYTHONPATH:$(pwd)/attributes/
@@ -19,6 +19,25 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
 
     cd ../mesh-mesh-intersection
     export CUDA_SAMPLES_INC=$(pwd)/include
+    pip install -r requirements.txt
+    python setup.py install
+    ```
+
+- Clone this repo and install on **Windows (CPU only)** using **conda**
+    ```cmd
+    git clone https://github.com/muelea/shapy.git
+    cd shapy
+    set PYTHONPATH=%PYTHONPATH%;%CD%\attributes
+
+    conda create -n shapy python=3.8 -y
+    conda activate shapy
+    pip install -r requirements.txt
+
+    cd attributes
+    python setup.py install
+
+    cd ..\mesh-mesh-intersection
+    REM The intersection module relies on CUDA. Skip if CUDA is unavailable.
     pip install -r requirements.txt
     python setup.py install
     ```
