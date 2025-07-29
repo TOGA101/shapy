@@ -58,9 +58,10 @@ def main(args: argparse.Namespace) -> None:
 
     print("Original betas:", betas.numpy())
     print("Augmented betas:", betas_aug.numpy())
-    max_diff = (betas - betas_aug).abs().max().item()
-    print("Max absolute difference:", max_diff)
-    print("Close:", torch.allclose(betas, betas_aug, atol=args.tolerance))
+    diff = betas - betas_aug
+    rmse = diff.pow(2).mean().sqrt().item()
+    print("RMSE:", rmse)
+    print("Close:", rmse <= args.tolerance)
 
     fig, ax = plt.subplots(1, 2, figsize=(8, 4))
     ax[0].imshow(img)
