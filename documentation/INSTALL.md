@@ -4,8 +4,8 @@
 
 The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 18.04.
 
-- Clone this repo, create virtual environment & install requirements
-    ```
+- Clone this repo, create virtual environment & install requirements (Linux)
+    ```bash
     git clone git@github.com:muelea/shapy.git
     cd shapy
     export PYTHONPATH=$PYTHONPATH:$(pwd)/attributes/
@@ -21,6 +21,30 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     export CUDA_SAMPLES_INC=$(pwd)/include
     pip install -r requirements.txt
     python setup.py install
+    ```
+
+- Clone this repo and install on **Windows (CPU only)** using **conda**
+    ```cmd
+    git clone https://github.com/muelea/shapy.git
+    cd shapy
+    set PYTHONPATH=%PYTHONPATH%;%CD%\attributes;%CD%\mesh-mesh-intersection
+    REM This provides the required `body_measurements` module even without CUDA.
+
+    conda create -n shapy python=3.8 -y
+    conda activate shapy
+    REM omegaconf 2.0.6 requires pip<24.1
+    python -m pip install "pip<24.1"
+    REM install CPU versions of PyTorch & torchvision
+    pip install torch==1.7.1+cpu torchvision==0.8.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
+    pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
+
+    cd attributes
+    python setup.py install
+
+    REM Optional: build the mesh-mesh-intersection CUDA extension if CUDA is available.
+    REM cd ..\mesh-mesh-intersection
+    REM pip install -r requirements.txt
+    REM python setup.py install
     ```
 
 ### Body model and model data

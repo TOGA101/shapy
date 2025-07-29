@@ -191,10 +191,10 @@ class SMPL(nn.Module):
                 if name in target_names:
                     source.append(idx)
                     target.append(target_names.index(name))
-            source = np.asarray(source)
-            target = np.asarray(target)
-            self.register_buffer('source_idxs', torch.from_numpy(source))
-            self.register_buffer('target_idxs', torch.from_numpy(target))
+            source = np.asarray(source, dtype=np.int64)
+            target = np.asarray(target, dtype=np.int64)
+            self.register_buffer('source_idxs', torch.from_numpy(source).long())
+            self.register_buffer('target_idxs', torch.from_numpy(target).long())
 
             extra_joint_regressor = torch.from_numpy(
                 j14_regressor).to(dtype=torch.float32)

@@ -16,3 +16,7 @@ pip install pyrender==0.1.43
 ```
 
 Find here: https://github.com/muelea/shapy/issues/33
+
+3.) I see warnings about unexpected keys when loading a checkpoint
+These messages come from the Checkpointer and indicate the weights include parameters not used by the current network configuration (e.g. body measurement modules). They can be safely ignored.
+
