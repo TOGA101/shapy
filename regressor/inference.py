@@ -4,7 +4,7 @@ This script expects a configuration YAML and a checkpoint directory as used by
 ``regressor/demo.py``. It performs no alignment, detection or rendering.
 
 Example:
-    python inference.py --cfg regressor/configs/b2a_expose_hrnet_demo.yaml \
+    python regressor/inference.py --cfg regressor/configs/b2a_expose_hrnet_demo.yaml \
         --checkpoint output/SHAPY_A --image path/to/image.png
 """
 
@@ -22,10 +22,10 @@ from omegaconf import OmegaConf
 import os
 
 # Support running from the repository root by adding required submodules to
-# the Python path. When executed from within ``regressor`` this is unnecessary
-# but otherwise ``human_shape`` and ``body_measurements`` cannot be resolved.
-ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "regressor"))
+# ``sys.path``. This lets the script resolve the local ``attributes`` package
+# and the optional ``body_measurements`` utilities without requiring
+# ``PYTHONPATH`` to be set.
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
 sys.path.insert(0, str(ROOT / "attributes"))
 
