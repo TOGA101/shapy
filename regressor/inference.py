@@ -1,11 +1,14 @@
 """Run SHAPY on an aligned full-body image to regress SMPL-X betas.
 
-This script expects a configuration YAML and a checkpoint directory as used by
-``regressor/demo.py``. It performs no alignment, detection or rendering.
+This script expects a configuration YAML and optionally a checkpoint directory
+as used by ``regressor/demo.py``. It performs no alignment, detection or
+rendering. If no checkpoint is given, the script defaults to the ``SHAPY_A``
+weights inside the ``data/trained_models`` folder described in the
+installation instructions.
 
 Example:
     python regressor/inference.py --cfg regressor/configs/b2a_expose_hrnet_demo.yaml \
-        --checkpoint output/SHAPY_A --image path/to/image.png
+        --image path/to/image.png
 """
 
 from __future__ import annotations
@@ -28,6 +31,9 @@ import os
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
 sys.path.insert(0, str(ROOT / "attributes"))
+
+# Default checkpoint path based on the expected data folder structure
+DEFAULT_CHECKPOINT = ROOT / "data" / "trained_models" / "shapy" / "SHAPY_A"
 
 # When the optional CUDA extension for mesh-mesh-intersection is not compiled,
 # importing `body_measurements` fails. Create lightweight stub modules so that
@@ -149,8 +155,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SHAPY single-image inference")
     parser.add_argument("--cfg", type=Path, required=True,
                         help="Path to experiment YAML configuration")
-    parser.add_argument("--checkpoint", type=Path, default=None,
-                        help="Path to checkpoint directory (unused, kept for backwards compatibility)")
+    parser.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=DEFAULT_CHECKPOINT,
+        help=("Path to checkpoint directory. Defaults to the SHAPY_A weights "
+              f"at {DEFAULT_CHECKPOINT!s}"),
+    )
     parser.add_argument("--image", type=Path, required=True,
                         help="Path to an aligned RGB image")
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cuda",
