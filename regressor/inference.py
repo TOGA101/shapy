@@ -104,7 +104,10 @@ def preprocess_image(img: Image.Image, size: int,
                       mean: Iterable[float], std: Iterable[float]) -> torch.Tensor:
     """Resize and normalize an image for the regressor."""
     transform = Compose([
-        Resize((size, size), antialias=True),
+        # ``antialias`` is only supported in newer torchvision versions.
+        # TODO: switch to ``Resize(..., antialias=True)`` once the minimum
+        # supported torchvision version includes it.
+        Resize((size, size), interpolation=Image.BILINEAR),
         ToTensor(),
         Normalize(mean=mean, std=std),
     ])
