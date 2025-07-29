@@ -27,6 +27,19 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "regressor"))
 sys.path.insert(0, str(ROOT / "mesh-mesh-intersection"))
 
+# When the optional CUDA extension for mesh-mesh-intersection is not compiled,
+# importing `body_measurements` fails. Create lightweight stub modules so that
+# the rest of the code can run without the extension.
+import types
+if "mesh_mesh_intersect_cuda" not in sys.modules:
+    stub = types.ModuleType("mesh_mesh_intersect_cuda")
+
+    def _missing(*_args, **_kwargs):  # pragma: no cover - runtime fallback
+        raise ImportError("mesh_mesh_intersect_cuda extension is unavailable")
+
+    stub.mesh_to_mesh_forward = _missing
+    sys.modules["mesh_mesh_intersect_cuda"] = stub
+
 from human_shape.config.defaults import conf as default_conf
 from human_shape.models.build import build_model
 from human_shape.utils.checkpointer import Checkpointer
