@@ -21,9 +21,19 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
 
     cd ../mesh-mesh-intersection
     set CUDA_SAMPLES_INC=%cd%\include
-    pip install -r requirements.txt
-    python setup.py install
+    rem Optional: compile CUDA extension when CUDA is installed
+    rem CUDA_HOME should point to your CUDA installation root
+    if not "%CUDA_HOME%"=="" (
+        pip install -r requirements.txt
+        python setup.py install
+    ) else (
+        echo Skipping mesh-mesh-intersection build since CUDA is not available
+    )
     ```
+
+    The `mesh-mesh-intersection` module requires CUDA for compilation. When
+    `%CUDA_HOME%` is not set, the build step is skipped, which avoids errors
+    like `CUDA_HOME environment variable is not set` on CPU-only setups.
 
 ### Body model and model data
 
