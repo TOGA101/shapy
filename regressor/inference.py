@@ -8,8 +8,8 @@ from omegaconf import OmegaConf
 
 from human_shape.config.defaults import conf as default_conf
 from human_shape.models.build import build_model
-from human_shape.utils import Checkpointer
-from human_shape.data.structures import BoundingBox, StructureList
+from human_shape.utils.checkpointer import Checkpointer
+from human_shape.data.structures.bbox import BoundingBox
 
 
 def load_cfg(cfg_path: Path, output_folder: Path) -> "OmegaConf":
@@ -55,7 +55,7 @@ def preprocess_image(
     return tensor, [target]
 
 
-def run_inference(model, image: torch.Tensor, targets: StructureList):
+def run_inference(model, image: torch.Tensor, targets: list[BoundingBox]):
     with torch.no_grad():
         out = model(image, targets, compute_losses=False)
     last_stage = out['stage_keys'][-1]
