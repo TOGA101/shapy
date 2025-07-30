@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 
 import torch
-from PIL import Image
-from torchvision import transforms
+import cv2
+from torchvision.transforms import functional as F
 
 from omegaconf import OmegaConf
 
@@ -33,13 +33,14 @@ def build_network(cfg, device: torch.device):
 
 
 def preprocess_image(img_path: Path, crop_size: int, mean, std, device: torch.device):
-    image = Image.open(img_path).convert("RGB")
-    tfm = transforms.Compose([
-        transforms.Resize((crop_size, crop_size)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std),
-    ])
-    tensor = tfm(image).unsqueeze(0).to(device)
+    img = cv2.imread(str(img_path))
+    if img is None:
+        raise FileNotFoundError(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
+    tensor = F.to_tensor(img)
+    tensor = F.normalize(tensor, mean=list(mean), std=list(std))
+    tensor = tensor.unsqueeze(0).to(device)
 
     target = BoundingBox(torch.tensor([0, 0, crop_size, crop_size], dtype=torch.float32),
                          size=(crop_size, crop_size, 3))
