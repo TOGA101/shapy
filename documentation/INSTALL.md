@@ -8,17 +8,18 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     ```
     git clone git@github.com:muelea/shapy.git
     cd shapy
-    export PYTHONPATH=$PYTHONPATH:$(pwd)/attributes/
+    set PYTHONPATH=%PYTHONPATH%;%cd%\attributes
 
-    python3.8 -m venv .venv/shapy
-    source .venv/shapy/bin/activate
+    conda create -n shapy python=3.8 -y
+    conda activate shapy
+    conda install pytorch==1.7.1 torchvision==0.8.2 cpuonly -c pytorch -y
     pip install -r requirements.txt
 
     cd attributes
     python setup.py install
 
     cd ../mesh-mesh-intersection
-    export CUDA_SAMPLES_INC=$(pwd)/include
+    set CUDA_SAMPLES_INC=%cd%\include
     pip install -r requirements.txt
     python setup.py install
     ```
