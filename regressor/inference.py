@@ -3,7 +3,6 @@ from pathlib import Path
 
 import torch
 import cv2
-from torchvision.transforms import functional as F
 
 from omegaconf import OmegaConf
 
@@ -32,14 +31,19 @@ def build_network(cfg, device: torch.device):
     return model
 
 
-def preprocess_image(img_path: Path, crop_size: int, mean, std, device: torch.device):
+def preprocess_image(
+    img_path: Path, crop_size: int, mean, std, device: torch.device
+) -> tuple[torch.Tensor, list[BoundingBox]]:
     img = cv2.imread(str(img_path))
     if img is None:
         raise FileNotFoundError(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
-    tensor = F.to_tensor(img)
-    tensor = F.normalize(tensor, mean=list(mean), std=list(std))
+    img = img.astype("float32") / 255.0
+    tensor = torch.from_numpy(img).permute(2, 0, 1)
+    mean = torch.tensor(mean).view(-1, 1, 1)
+    std = torch.tensor(std).view(-1, 1, 1)
+    tensor = (tensor - mean) / std
     tensor = tensor.unsqueeze(0).to(device)
 
     target = BoundingBox(torch.tensor([0, 0, crop_size, crop_size], dtype=torch.float32),
