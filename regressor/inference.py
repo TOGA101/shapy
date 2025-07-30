@@ -61,16 +61,32 @@ def run_inference(model, image: torch.Tensor, targets: StructureList):
 def main():
     parser = argparse.ArgumentParser(description="Predict SMPL betas from a single image")
     parser.add_argument('image_path', type=Path, help='Aligned person image path')
-    parser.add_argument('--config', type=Path, default=Path(__file__).with_name('configs') / 'b2a_expose_hrnet_demo.yaml',
-                        help='Model config file')
-    parser.add_argument('--model-folder', type=Path,
-                        default=Path(__file__).resolve().parents[1] / 'data' / 'trained_models' / 'shapy' / 'SHAPY_A',
-                        help='Folder with pre-trained checkpoints')
-    parser.add_argument('--device', default='cuda', help='cuda or cpu')
+    parser.add_argument(
+        '--config',
+        type=Path,
+        default=Path(__file__).resolve().parent / 'configs' / 'b2a_expose_hrnet_demo.yaml',
+        help='Model config file',
+    )
+    parser.add_argument(
+        '--model-folder',
+        type=Path,
+        default=Path(__file__).resolve().parents[1]
+        / 'data'
+        / 'trained_models'
+        / 'shapy'
+        / 'SHAPY_A',
+        help='Folder with pre-trained checkpoints',
+    )
+    parser.add_argument(
+        '--device',
+        choices=['cpu', 'cuda'],
+        default='cuda',
+        help='Device to run the network on',
+    )
     parser.add_argument('--output', type=Path, default='betas.npy', help='File to save predicted betas')
 
     args = parser.parse_args()
-    device = torch.device(args.device if args.device == 'cpu' or torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if args.device == 'cuda' and torch.cuda.is_available() else 'cpu')
 
     cfg = load_cfg(args.config, args.model_folder)
     model = build_network(cfg, device)
@@ -84,9 +100,8 @@ def main():
 
     args.output = Path(args.output)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.output, 'wb') as f:
-        import numpy as np
-        np.save(f, betas)
+    import numpy as np
+    np.save(args.output, betas)
     print(f"Saved betas to {args.output}")
 
 
