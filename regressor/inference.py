@@ -26,6 +26,33 @@ except ModuleNotFoundError:  # pragma: no cover - optional dependency
     dummy.BodyMeasurements = _Dummy
     sys.modules["body_measurements"] = dummy
 
+# ----------------------------------------------------------------------------
+# Optional attributes dependency. Required only for body shape attributes and
+# A2B/B2A conversion regressors.
+# ----------------------------------------------------------------------------
+ATTR_ROOT = Path(__file__).resolve().parent.parent / "attributes"
+if ATTR_ROOT.exists() and str(ATTR_ROOT) not in sys.path:
+    sys.path.insert(0, str(ATTR_ROOT))
+try:
+    from attributes import A2B, B2A  # noqa: F401
+except Exception:  # pragma: no cover - optional dependency
+    dummy_attr = types.ModuleType("attributes")
+
+    class _NoOpRegressor:
+        @classmethod
+        def load_from_checkpoint(cls, *_, **__):
+            return cls()
+
+        def eval(self):
+            return self
+
+        def named_parameters(self):
+            return []
+
+    dummy_attr.A2B = _NoOpRegressor
+    dummy_attr.B2A = _NoOpRegressor
+    sys.modules["attributes"] = dummy_attr
+
 BASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BASE_DIR.parent
 DEFAULT_EXP_CFG = (BASE_DIR / 'configs' / 'b2a_expose_hrnet_demo.yaml').resolve()
