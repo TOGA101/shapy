@@ -1,4 +1,6 @@
 import argparse
+import sys
+import types
 from pathlib import Path
 
 import torch
@@ -7,16 +9,34 @@ from PIL import Image
 from omegaconf import OmegaConf
 
 from human_shape.config.defaults import conf as default_conf
-from human_shape.models.build import build_model
 from human_shape.utils import Checkpointer
+
+# ----------------------------------------------------------------------------
+# Optional body_measurements dependency
+# ----------------------------------------------------------------------------
+try:
+    import body_measurements  # noqa: F401
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
+    dummy = types.ModuleType("body_measurements")
+
+    class _Dummy(object):
+        def __init__(self, *_, **__):
+            pass
+
+    dummy.BodyMeasurements = _Dummy
+    sys.modules["body_measurements"] = dummy
 
 BASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BASE_DIR.parent
 DEFAULT_EXP_CFG = (BASE_DIR / 'configs' / 'b2a_expose_hrnet_demo.yaml').resolve()
-DEFAULT_MODEL_FOLDER = (REPO_ROOT / 'data' / 'trained_models' / 'shapy' / 'SHAPY_A').resolve()
+DEFAULT_MODEL_FOLDER = (
+    REPO_ROOT / 'data' / 'trained_models' / 'shapy' / 'SHAPY_A'
+).resolve()
 
 
 def load_model(exp_cfg, device):
+    from human_shape.models.build import build_model
+
     model_dict = build_model(exp_cfg)
     model = model_dict['network'].to(device)
     checkpoint_folder = Path(exp_cfg.output_folder) / exp_cfg.checkpoint_folder
@@ -73,6 +93,8 @@ def main():
     if 'smplx' in cfg.network:
         cfg.network.smplx.use_b2a = False
         cfg.network.smplx.use_a2b = False
+    if hasattr(cfg.network, 'compute_measurements'):
+        cfg.network.compute_measurements = False
 
     model = load_model(cfg, device)
 

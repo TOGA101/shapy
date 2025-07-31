@@ -25,6 +25,9 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     set CUDA_SAMPLES_INC=%CD%\include
     pip install -r requirements.txt
     python setup.py install
+    # The step above compiles CUDA extensions used for measurement losses.
+    # If your machine does not have CUDA installed and you only want to run
+    # inference with `regressor/inference.py`, you can skip this step.
     ```
 
 ### Body model and model data
