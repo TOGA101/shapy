@@ -10,9 +10,10 @@ from human_shape.config.defaults import conf as default_conf
 from human_shape.models.build import build_model
 from human_shape.utils import Checkpointer
 
-CURRENT_DIR = Path(__file__).resolve().parent
-DEFAULT_EXP_CFG = CURRENT_DIR / 'configs' / 'b2a_expose_hrnet_demo.yaml'
-DEFAULT_MODEL_FOLDER = CURRENT_DIR / '..' / 'data' / 'trained_models' / 'shapy' / 'SHAPY_A'
+BASE_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BASE_DIR.parent
+DEFAULT_EXP_CFG = (BASE_DIR / 'configs' / 'b2a_expose_hrnet_demo.yaml').resolve()
+DEFAULT_MODEL_FOLDER = (REPO_ROOT / 'data' / 'trained_models' / 'shapy' / 'SHAPY_A').resolve()
 
 
 def load_model(exp_cfg, device):
@@ -52,11 +53,18 @@ def main():
                         help='Configuration file path')
     parser.add_argument('--model-folder', type=Path, default=DEFAULT_MODEL_FOLDER,
                         help='Folder with trained model checkpoints')
-    parser.add_argument('--device', default='cuda', choices=['cpu', 'cuda'],
-                        help='Computation device')
+    parser.add_argument(
+        '--device',
+        default='auto',
+        choices=['auto', 'cpu', 'cuda'],
+        help='Select computation device (auto chooses CUDA if available)'
+    )
     args = parser.parse_args()
 
-    device = torch.device('cuda' if args.device == 'cuda' and torch.cuda.is_available() else 'cpu')
+    if args.device == 'auto':
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    else:
+        device = torch.device('cuda' if args.device == 'cuda' and torch.cuda.is_available() else 'cpu')
 
     cfg = default_conf.copy()
     cfg.merge_with(OmegaConf.load(str(args.exp_cfg)))

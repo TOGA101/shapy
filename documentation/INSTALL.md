@@ -13,6 +13,9 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     conda create -n shapy python=3.8 -y
     conda activate shapy
     python -m pip install "pip<24.1"
+    pip install torch==1.7.1+cpu torchvision==0.8.2+cpu \
+        -f https://download.pytorch.org/whl/torch_stable.html
+    # Remove '+cpu' and choose the appropriate CUDA tag if using a GPU
     pip install -r requirements.txt
 
     cd attributes
