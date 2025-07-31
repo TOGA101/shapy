@@ -15,6 +15,8 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     conda install pytorch==1.7.1 torchvision==0.8.2 cpuonly -c pytorch -y
     python -m pip install "pip<24.1"
     pip install -r requirements.txt
+    REM install Pillow through conda to avoid missing DLL errors on Windows
+    conda install pillow -y
 
     cd attributes
     python setup.py install
