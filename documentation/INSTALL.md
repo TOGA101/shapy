@@ -13,11 +13,11 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     conda create -n shapy python=3.8 -y
     conda activate shapy
     conda install pytorch==1.7.1 torchvision==0.8.2 cpuonly -c pytorch -y
+    REM install Pillow through conda to avoid DLL load failures
+    conda install pillow -y
     REM pip>=24 cannot install omegaconf 2.0.6
     python -m pip install pip==23.3.1
     pip install -r requirements.txt
-    REM install Pillow through conda to avoid missing DLL errors on Windows
-    conda install pillow -y
 
     cd attributes
     python setup.py install
@@ -35,6 +35,10 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
 **Note:** If the requirements installation complains about invalid metadata for
 `omegaconf==2.0.6`, make sure `python -m pip --version` reports a version below
 24.0 and reinstall pip as shown above.
+
+If Pillow was installed via pip previously and you still get
+`ImportError: DLL load failed while importing _imaging`, uninstall it with
+`pip uninstall Pillow` and reinstall via `conda install pillow -y`.
 
 ### Body model and model data
 
