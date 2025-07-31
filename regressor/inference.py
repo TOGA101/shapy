@@ -117,11 +117,19 @@ def main():
     cfg.merge_with(OmegaConf.load(str(args.exp_cfg)))
     cfg.output_folder = str(args.model_folder.resolve())
     cfg.is_training = False
-    if 'smplx' in cfg.network:
-        cfg.network.smplx.use_b2a = False
-        cfg.network.smplx.use_a2b = False
-    if hasattr(cfg.network, 'compute_measurements'):
-        cfg.network.compute_measurements = False
+
+    # Disable optional components to avoid heavy dependencies
+    net_cfg = cfg.network
+    for key in ("smplx", "smplh", "smpl", "expose", "hmr"):
+        sub = getattr(net_cfg, key, None)
+        if sub is None:
+            continue
+        if hasattr(sub, "compute_measurements"):
+            sub.compute_measurements = False
+        if hasattr(sub, "use_b2a"):
+            sub.use_b2a = False
+        if hasattr(sub, "use_a2b"):
+            sub.use_a2b = False
 
     model = load_model(cfg, device)
 
