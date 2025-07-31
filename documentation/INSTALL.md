@@ -19,7 +19,11 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     cd attributes
     python setup.py install
 
+    REM optional: build mesh-mesh-intersection (requires the CUDA toolkit)
+    REM skip these commands if CUDA is not installed
     cd ..\mesh-mesh-intersection
+    REM set CUDA_HOME to your CUDA installation path
+    set CUDA_HOME=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.2
     set CUDA_SAMPLES_INC=%cd%\include
     pip install -r requirements.txt
     python setup.py install
