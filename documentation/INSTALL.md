@@ -8,19 +8,26 @@ The code has been tested with Python 3.8, CUDA 10.2 and PyTorch 1.7.1 on Ubuntu 
     ```
     git clone git@github.com:muelea/shapy.git
     cd shapy
-    export PYTHONPATH=$PYTHONPATH:$(pwd)/attributes/
+    set PYTHONPATH=%PYTHONPATH%;%CD%\attributes
 
-    python3.8 -m venv .venv/shapy
-    source .venv/shapy/bin/activate
+    conda create -n shapy python=3.8 -y
+    conda activate shapy
+    python -m pip install "pip<24.1"
+    pip install torch==1.7.1+cpu torchvision==0.8.2+cpu \
+        -f https://download.pytorch.org/whl/torch_stable.html
+    # Remove '+cpu' and choose the appropriate CUDA tag if using a GPU
     pip install -r requirements.txt
 
     cd attributes
     python setup.py install
 
-    cd ../mesh-mesh-intersection
-    export CUDA_SAMPLES_INC=$(pwd)/include
+    cd ..\mesh-mesh-intersection
+    set CUDA_SAMPLES_INC=%CD%\include
     pip install -r requirements.txt
     python setup.py install
+    # The step above compiles CUDA extensions used for measurement losses.
+    # If your machine does not have CUDA installed and you only want to run
+    # inference with `regressor/inference.py`, you can skip this step.
     ```
 
 ### Body model and model data
