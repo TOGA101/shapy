@@ -1,57 +1,13 @@
 import argparse
-import sys
-import types
 from pathlib import Path
 
 import torch
-from torchvision import transforms
 from PIL import Image
 from omegaconf import OmegaConf
+from torchvision import transforms
 
 from human_shape.config.defaults import conf as default_conf
 from human_shape.utils import Checkpointer
-
-# ----------------------------------------------------------------------------
-# Optional body_measurements dependency
-# ----------------------------------------------------------------------------
-try:
-    import body_measurements  # noqa: F401
-except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    dummy = types.ModuleType("body_measurements")
-
-    class _Dummy(object):
-        def __init__(self, *_, **__):
-            pass
-
-    dummy.BodyMeasurements = _Dummy
-    sys.modules["body_measurements"] = dummy
-
-# ----------------------------------------------------------------------------
-# Optional attributes dependency. Required only for body shape attributes and
-# A2B/B2A conversion regressors.
-# ----------------------------------------------------------------------------
-ATTR_ROOT = Path(__file__).resolve().parent.parent / "attributes"
-if ATTR_ROOT.exists() and str(ATTR_ROOT) not in sys.path:
-    sys.path.insert(0, str(ATTR_ROOT))
-try:
-    from attributes import A2B, B2A  # noqa: F401
-except Exception:  # pragma: no cover - optional dependency
-    dummy_attr = types.ModuleType("attributes")
-
-    class _NoOpRegressor:
-        @classmethod
-        def load_from_checkpoint(cls, *_, **__):
-            return cls()
-
-        def eval(self):
-            return self
-
-        def named_parameters(self):
-            return []
-
-    dummy_attr.A2B = _NoOpRegressor
-    dummy_attr.B2A = _NoOpRegressor
-    sys.modules["attributes"] = dummy_attr
 
 BASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BASE_DIR.parent
@@ -100,36 +56,14 @@ def main():
                         help='Configuration file path')
     parser.add_argument('--model-folder', type=Path, default=DEFAULT_MODEL_FOLDER,
                         help='Folder with trained model checkpoints')
-    parser.add_argument(
-        '--device',
-        default='auto',
-        choices=['auto', 'cpu', 'cuda'],
-        help='Select computation device (auto chooses CUDA if available)'
-    )
     args = parser.parse_args()
 
-    if args.device == 'auto':
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    else:
-        device = torch.device('cuda' if args.device == 'cuda' and torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     cfg = default_conf.copy()
     cfg.merge_with(OmegaConf.load(str(args.exp_cfg)))
     cfg.output_folder = str(args.model_folder.resolve())
     cfg.is_training = False
-
-    # Disable optional components to avoid heavy dependencies
-    net_cfg = cfg.network
-    for key in ("smplx", "smplh", "smpl", "expose", "hmr"):
-        sub = getattr(net_cfg, key, None)
-        if sub is None:
-            continue
-        if hasattr(sub, "compute_measurements"):
-            sub.compute_measurements = False
-        if hasattr(sub, "use_b2a"):
-            sub.use_b2a = False
-        if hasattr(sub, "use_a2b"):
-            sub.use_a2b = False
 
     model = load_model(cfg, device)
 

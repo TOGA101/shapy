@@ -40,7 +40,7 @@ from ..utils import (
 from ..utils import read_keypoints
 from ...utils.img_utils import read_img
 
-from body_measurements import BodyMeasurements
+# from body_measurements import BodyMeasurements
 
 FOLDER_MAP_FNAME = 'folder_map.pkl'
 
@@ -116,10 +116,10 @@ class HumanBodyInTheWild(dutils.Dataset):
             gender_data = yaml.safe_load(f)
         
         # load measurement module
-        measurements = BodyMeasurements({
-            'meas_definition_path': osp.join(meas_definition_path),
-            'meas_vertices_path': osp.join(meas_vertices_path),
-        }).to(device=self.device)
+        # measurements = BodyMeasurements({
+        #     'meas_definition_path': osp.join(meas_definition_path),
+        #     'meas_vertices_path': osp.join(meas_vertices_path),
+        # }).to(device=self.device)
 
         # Load SMPL model
         body_model = smplx.create(
@@ -155,7 +155,7 @@ class HumanBodyInTheWild(dutils.Dataset):
             if self.split in ['val', 'test']:
                 curr_v_shaped = torch.from_numpy(gt_v_shaped[subject_id]).unsqueeze(0).float()
                 curr_triangles = curr_v_shaped[:, body_model_faces].to(self.device)
-                curr_subj_meas_val = measurements(curr_triangles)['measurements']
+                # curr_subj_meas_val = measurements(curr_triangles)['measurements']
 
             curr_subj_path = osp.join(self.img_folder, subject_folder)
 
@@ -209,10 +209,10 @@ class HumanBodyInTheWild(dutils.Dataset):
                     keypoints2d.append(keyp_data)
                     if self.split in ['val', 'test']:
                         v_shaped.append(gt_v_shaped[subject_id])
-                        height.append(curr_subj_meas_val['height']['tensor'].item())
-                        chest.append(curr_subj_meas_val['chest']['tensor'].item())
-                        waist.append(curr_subj_meas_val['waist']['tensor'].item())
-                        hips.append(curr_subj_meas_val['hips']['tensor'].item())
+                        # height.append(curr_subj_meas_val['height']['tensor'].item())
+                        # chest.append(curr_subj_meas_val['chest']['tensor'].item())
+                        # waist.append(curr_subj_meas_val['waist']['tensor'].item())
+                        # hips.append(curr_subj_meas_val['hips']['tensor'].item())
         
         self.keypoints2d = np.concatenate(keypoints2d, axis=0)
         self.subject_ids = np.asarray(subject_ids)

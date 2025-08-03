@@ -181,10 +181,10 @@ network:
         feature_key: 'concat'
         predict_hands: False
         predict_face: False
-        compute_measurements: True
+        compute_measurements: False
         meas_definition_path: '../data/utility_files/measurements/measurement_defitions.yaml'
         meas_vertices_path: '../data/utility_files/measurements/smplx_measurements.yaml'
-        use_b2a: True
+        use_b2a: False
         use_a2b: False
         num_attributes: 15
         b2a_males_checkpoint: '../data/b2a/polynomial/caesar-male_smplx-neutral-10betas/last.ckpt'

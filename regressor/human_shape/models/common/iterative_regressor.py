@@ -18,7 +18,7 @@ import torch.nn.functional as F
 import torch.nn.init as nninit
 from omegaconf import DictConfig
 
-from body_measurements import BodyMeasurements
+# from body_measurements import BodyMeasurements
 
 from .pose_utils import PoseParameterization
 from .networks import build_regressor
@@ -34,7 +34,7 @@ from human_shape.utils import (
     Tensor, BlendShapeDescription, StringList, AppearanceDescription,
     Timer)
 
-from attributes import A2B, B2A
+# from attributes import A2B, B2A
 
 class HMRLikeRegressor(nn.Module):
     def __init__(
@@ -137,10 +137,7 @@ class HMRLikeRegressor(nn.Module):
         self.compute_measurements = compute_measurements
         logger.info(f'Compute body measurements: {compute_measurements}')
         if self.compute_measurements:
-            self.body_measurements = BodyMeasurements(
-                {'meas_definition_path': meas_definition_path,
-                 'meas_vertices_path': meas_vertices_path},
-            )
+            raise Exception("compute_measurements is true")
 
         # load betas to attributes module
         use_b2a = network_cfg.get('use_b2a', False)
@@ -151,25 +148,26 @@ class HMRLikeRegressor(nn.Module):
             b2a_males_checkpoint_path) and osp.exists(
             b2a_females_checkpoint_path)
         if self.use_b2a:
-            logger.info(f'Loading B2A regressors ...')
-            male_hparams = torch.load(b2a_males_checkpoint_path)['hyper_parameters']
-            male_cfg = male_hparams.get('cfg', {})
-            #male_cfg.update(male_hparams)
-            # load regressor for males
-            self.b2a_males = B2A.load_from_checkpoint(
-                b2a_males_checkpoint_path, cfg=male_cfg)
-            self.b2a_males.eval()
-            for name, params in self.b2a_males.named_parameters():
-                params.requires_grad = False
-            # load regressor for males
-            female_hparams = torch.load(b2a_females_checkpoint_path)['hyper_parameters']
-            female_cfg = female_hparams.get('cfg', {})
-            #female_cfg.update(female_hparams)
-            self.b2a_females = B2A.load_from_checkpoint(
-                b2a_females_checkpoint_path, cfg=female_cfg)
-            self.b2a_females.eval()
-            for name, params in self.b2a_females.named_parameters():
-                params.requires_grad = False
+            raise Exception("use_b2a is true")
+            # logger.info(f'Loading B2A regressors ...')
+            # male_hparams = torch.load(b2a_males_checkpoint_path)['hyper_parameters']
+            # male_cfg = male_hparams.get('cfg', {})
+            # #male_cfg.update(male_hparams)
+            # # load regressor for males
+            # self.b2a_males = B2A.load_from_checkpoint(
+            #     b2a_males_checkpoint_path, cfg=male_cfg)
+            # self.b2a_males.eval()
+            # for name, params in self.b2a_males.named_parameters():
+            #     params.requires_grad = False
+            # # load regressor for males
+            # female_hparams = torch.load(b2a_females_checkpoint_path)['hyper_parameters']
+            # female_cfg = female_hparams.get('cfg', {})
+            # #female_cfg.update(female_hparams)
+            # self.b2a_females = B2A.load_from_checkpoint(
+            #     b2a_females_checkpoint_path, cfg=female_cfg)
+            # self.b2a_females.eval()
+            # for name, params in self.b2a_females.named_parameters():
+            #     params.requires_grad = False
 
         # load a2b regressor
         use_a2b = network_cfg.get('use_a2b', False)
@@ -181,27 +179,28 @@ class HMRLikeRegressor(nn.Module):
             a2b_males_checkpoint_path) and osp.exists(
             a2b_females_checkpoint_path)
         if self.use_a2b:
-            logger.info(f'Loading A2B regressors ...')
-            # load regressor for males
-            self.a2b_males = A2B.load_from_checkpoint(
-                a2b_males_checkpoint_path)
-            self.a2b_males.renderer = None
-            if hasattr(self.a2b_males, 'hd_operator'):
-                delattr(self.a2b_males, 'hd_operator')
-            self.a2b_males.eval()
-
-            for name, params in self.a2b_males.named_parameters():
-                params.requires_grad = False
-
-            # load regressor for males
-            self.a2b_females = A2B.load_from_checkpoint(
-                a2b_females_checkpoint_path)
-            if hasattr(self.a2b_females, 'hd_operator'):
-                delattr(self.a2b_females, 'hd_operator')
-            self.a2b_females.renderer = None
-            self.a2b_females.eval()
-            for name, params in self.a2b_females.named_parameters():
-                params.requires_grad = False
+            raise Exception("use_a2b is true")
+            # logger.info(f'Loading A2B regressors ...')
+            # # load regressor for males
+            # self.a2b_males = A2B.load_from_checkpoint(
+            #     a2b_males_checkpoint_path)
+            # self.a2b_males.renderer = None
+            # if hasattr(self.a2b_males, 'hd_operator'):
+            #     delattr(self.a2b_males, 'hd_operator')
+            # self.a2b_males.eval()
+            #
+            # for name, params in self.a2b_males.named_parameters():
+            #     params.requires_grad = False
+            #
+            # # load regressor for males
+            # self.a2b_females = A2B.load_from_checkpoint(
+            #     a2b_females_checkpoint_path)
+            # if hasattr(self.a2b_females, 'hd_operator'):
+            #     delattr(self.a2b_females, 'hd_operator')
+            # self.a2b_females.renderer = None
+            # self.a2b_females.eval()
+            # for name, params in self.a2b_females.named_parameters():
+            #     params.requires_grad = False
 
         # Build the losses
         self._build_losses(loss_cfg)
